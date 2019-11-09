@@ -3,26 +3,27 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
+#include <stdbool.h>
 
-#define NUM_PESSOAS   20
-#define CADEIRA_BOA    5
-#define CADEIRA_MEDIA  3
-#define CADEIRA_RUIM   9
+#define NUM_PEOPLE        20
+#define NUM_GOOD_CHAIR     5
+#define NUM_REGULAR_CHAIR  3
+#define NUM_BAD_CHAIR      9
 
-void* pessoa(void *param) {
+void* person(void *param) {
   sleep(5);
   printf("Hello World\n");
 }
 
 int main() {
-  pthread_t threads[NUM_PESSOAS];
+  pthread_t people[NUM_PEOPLE];
 
-  for (int i = 0; i < NUM_PESSOAS; i++) {
-    pthread_create(&threads[i], NULL, pessoa, NULL);
+  for (int i = 0; i < NUM_PEOPLE; i++) {
+    pthread_create(&people[i], NULL, person, NULL);
   }
 
-  for (int i = 0; i < NUM_PESSOAS; i++) {
-    pthread_join(threads[i], NULL);
+  for (int i = 0; i < NUM_PEOPLE; i++) {
+    pthread_join(people[i], NULL);
   }
 
   return 0;
