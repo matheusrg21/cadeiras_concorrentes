@@ -10,9 +10,72 @@
 #define NUM_REGULAR_CHAIR  3
 #define NUM_BAD_CHAIR      9
 
+// Good Chairs -----------------------------------------------------------------
+pthread_mutex_t good_chairs_mutex = PTHREAD_MUTEX_INITIALIZER;
+int good_chairs = 0;
+
+bool try_get_good_chair() {
+  bool result = false;
+  pthread_mutex_lock(&good_chairs_mutex);
+
+  if (good_chairs < NUM_GOOD_CHAIR) {
+    good_chairs++;
+    result = true;
+  }
+
+  pthread_mutex_unlock(&good_chairs_mutex);
+  return result;
+}
+
+// Regular Chairs --------------------------------------------------------------
+pthread_mutex_t regular_chairs_mutex = PTHREAD_MUTEX_INITIALIZER;
+int regular_chairs = 0;
+
+bool try_get_regular_chair() {
+  bool result = false;
+  pthread_mutex_lock(&regular_chairs_mutex);
+
+  if (regular_chairs < NUM_REGULAR_CHAIR) {
+    regular_chairs++;
+    result = true;
+  }
+
+  pthread_mutex_unlock(&regular_chairs_mutex);
+  return result;
+}
+
+// Bad Chairs ------------------------------------------------------------------
+pthread_mutex_t bad_chairs_mutex = PTHREAD_MUTEX_INITIALIZER;
+int bad_chairs = 0;
+
+bool try_get_bad_chair() {
+  bool result = false;
+  pthread_mutex_lock(&bad_chairs_mutex);
+
+  if (bad_chairs < NUM_BAD_CHAIR) {
+    bad_chairs++;
+    result = true;
+  }
+
+  pthread_mutex_unlock(&bad_chairs_mutex);
+  return result;
+}
+
+// People ----------------------------------------------------------------------
 void* person(void *param) {
-  sleep(5);
-  printf("Hello World\n");
+  if (try_get_good_chair()) {
+    printf("Found a good chair!!\n");
+  } else {
+    if (try_get_regular_chair()) {
+      printf("Found a regular chair!!\n");
+    } else {
+      if (try_get_bad_chair()) {
+        printf("Found a bad chair :(\n");
+      } else {
+        printf("No chair for me :(\n");
+      }
+    }
+  }
 }
 
 int main() {
