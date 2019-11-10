@@ -62,21 +62,37 @@ bool try_get_bad_chair() {
 }
 
 // People ----------------------------------------------------------------------
-void* person(void *param) {
-  size_t id = (size_t) param;
+void on_good_chair(size_t thread_id) {
+  printf("%02d Found a good chair!!\n", thread_id);
+}
+
+void on_regular_chair(size_t thread_id) {
+  printf("%02d Found a regular chair!\n", thread_id);
+}
+
+void on_bad_chair(size_t thread_id) {
+  printf("%02d Found a bad chair :(\n", thread_id);
+}
+
+void without_chair(size_t thread_id) {
+  printf("%02d Didn't get a chair\n", thread_id);
+}
+
+void* person (void *param) {
+  size_t thread_id = (size_t) param;
   // Add a short delay for getting a chair
   sleep(rand() % 5);
 
   if (try_get_good_chair()) {
-    printf("%02d Found a good chair!!\n", id);
+    on_good_chair(thread_id);
   } else {
     if (try_get_regular_chair()) {
-      printf("%02d Found a regular chair!!\n", id);
+      on_regular_chair(thread_id);
     } else {
       if (try_get_bad_chair()) {
-        printf("%02d Found a bad chair :(\n", id);
+        on_bad_chair(thread_id);
       } else {
-        printf ("%02d No chair for me :'(\n", id);
+        without_chair(thread_id);
       }
     }
   }
