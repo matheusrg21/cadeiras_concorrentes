@@ -63,16 +63,20 @@ bool try_get_bad_chair() {
 
 // People ----------------------------------------------------------------------
 void* person(void *param) {
+  size_t id = (size_t) param;
+  // Add a short delay for getting a chair
+  sleep(rand() % 5);
+
   if (try_get_good_chair()) {
-    printf("Found a good chair!!\n");
+    printf("%02d Found a good chair!!\n", id);
   } else {
     if (try_get_regular_chair()) {
-      printf("Found a regular chair!!\n");
+      printf("%02d Found a regular chair!!\n", id);
     } else {
       if (try_get_bad_chair()) {
-        printf("Found a bad chair :(\n");
+        printf("%02d Found a bad chair :(\n", id);
       } else {
-        printf("No chair for me :(\n");
+        printf ("%02d No chair for me :'(\n", id);
       }
     }
   }
@@ -81,8 +85,8 @@ void* person(void *param) {
 int main() {
   pthread_t people[NUM_PEOPLE];
 
-  for (int i = 0; i < NUM_PEOPLE; i++) {
-    pthread_create(&people[i], NULL, person, NULL);
+  for (size_t i = 0; i < NUM_PEOPLE; i++) {
+    pthread_create(&people[i], NULL, person, (void *)i);
   }
 
   for (int i = 0; i < NUM_PEOPLE; i++) {
