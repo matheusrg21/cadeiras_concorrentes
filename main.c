@@ -11,6 +11,7 @@
 #define NUM_BAD_CHAIR      9
 
 // Good Chairs -----------------------------------------------------------------
+
 pthread_mutex_t good_chairs_mutex = PTHREAD_MUTEX_INITIALIZER;
 int good_chairs = 0;
 
@@ -27,7 +28,14 @@ bool try_get_good_chair() {
   return result;
 }
 
+void release_good_chair() {
+  pthread_mutex_lock(&good_chairs_mutex);
+  good_chairs--;
+  pthread_mutex_unlock(&good_chairs_mutex);
+}
+
 // Regular Chairs --------------------------------------------------------------
+
 pthread_mutex_t regular_chairs_mutex = PTHREAD_MUTEX_INITIALIZER;
 int regular_chairs = 0;
 
@@ -44,7 +52,14 @@ bool try_get_regular_chair() {
   return result;
 }
 
+void release_regular_chair() {
+  pthread_mutex_lock(&regular_chairs_mutex);
+  regular_chairs--;
+  pthread_mutex_unlock(&regular_chairs_mutex);
+}
+
 // Bad Chairs ------------------------------------------------------------------
+
 pthread_mutex_t bad_chairs_mutex = PTHREAD_MUTEX_INITIALIZER;
 int bad_chairs = 0;
 
@@ -61,17 +76,41 @@ bool try_get_bad_chair() {
   return result;
 }
 
+void release_bad_chair() {
+  pthread_mutex_lock(&bad_chairs_mutex);
+  bad_chairs--;
+  pthread_mutex_unlock(&bad_chairs_mutex);
+}
+
 // People ----------------------------------------------------------------------
 void on_good_chair(size_t thread_id) {
   printf("%02d Found a good chair!!\n", thread_id);
+  sleep(rand() % 5);
+  printf("%02d off for the day\n", thread_id);
+  release_good_chair();
 }
 
 void on_regular_chair(size_t thread_id) {
   printf("%02d Found a regular chair!\n", thread_id);
+  while (!try_get_good_chair());
+  on_good_chair(thread_id);
+  release_regular_chair();
 }
 
 void on_bad_chair(size_t thread_id) {
   printf("%02d Found a bad chair :(\n", thread_id);
+  int found = 0;
+
+  do {
+    found = try_get_good_chair() ? 1 : try_get_regular_chair() ? 2 : found;
+  } while (found == 0);
+  release_bad_chair();
+
+  if (found == 1) {
+    on_good_chair(thread_id);
+  } else {
+    on_regular_chair(thread_id);
+  }
 }
 
 void without_chair(size_t thread_id) {
