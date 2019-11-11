@@ -10,6 +10,8 @@
 #define NUM_REGULAR_CHAIR  3
 #define NUM_BAD_CHAIR      9
 
+bool try_get_any_chair(size_t thread_id);
+
 // Good Chairs -----------------------------------------------------------------
 
 pthread_mutex_t good_chairs_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -115,13 +117,10 @@ void on_bad_chair(size_t thread_id) {
 
 void without_chair(size_t thread_id) {
   printf("%02d Didn't get a chair\n", thread_id);
+  while (!try_get_any_chair(thread_id));
 }
 
-void* person (void *param) {
-  size_t thread_id = (size_t) param;
-  // Add a short delay for getting a chair
-  sleep(rand() % 5);
-
+bool try_get_any_chair(size_t thread_id) {
   if (try_get_good_chair()) {
     on_good_chair(thread_id);
   } else {
@@ -131,9 +130,21 @@ void* person (void *param) {
       if (try_get_bad_chair()) {
         on_bad_chair(thread_id);
       } else {
-        without_chair(thread_id);
+        return false;
       }
     }
+  }
+
+  return true;
+}
+
+void* person (void *param) {
+  size_t thread_id = (size_t) param;
+  // Add a short delay for getting a chair
+  sleep(rand() % 5);
+  
+  if (try_get_any_chair(thread_id)) {
+    without_chair(thread_id);
   }
 }
 
