@@ -9,8 +9,10 @@
 #define NUM_GOOD_CHAIR     5
 #define NUM_REGULAR_CHAIR  3
 #define NUM_BAD_CHAIR      9
+// #define DEBUG
 
 bool try_get_any_chair(size_t thread_id);
+void display(void);
 
 // Good Chairs -----------------------------------------------------------------
 
@@ -159,5 +161,21 @@ int main() {
     pthread_join(people[i], NULL);
   }
 
+  display();
   return 0;
+}
+
+void display(void) {
+  #ifdef DEBUG
+    pthread_mutex_lock(&good_chairs_mutex);
+    pthread_mutex_lock(&regular_chairs_mutex);
+    pthread_mutex_lock(&bad_chairs_mutex);
+    printf(
+      "good: %d; regular: %d; bad: %d\n",
+      good_chairs, regular_chairs, bad_chairs
+    );
+    pthread_mutex_unlock(&regular_chairs_mutex);
+    pthread_mutex_unlock(&good_chairs_mutex);
+    pthread_mutex_unlock(&bad_chairs_mutex);
+  #endif
 }
